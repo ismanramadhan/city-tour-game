@@ -63,17 +63,11 @@ export default function WebARHunter({ onComplete, onBack }) {
   }, [status]);
 
   // AR objects at fixed spherical angles so user must rotate 360° to find them
-  const FOV_H = 55;
-  const FOV_V = 45;
-  const objectAngles = [
-    { id: 1, type: "heritage", icon: "🏛️", name: "Monumen Bersejarah", azimuth: 0, elevation: 0 },
-    { id: 2, type: "artifact", icon: "🗿", name: "Artefak Kuno", azimuth: 120, elevation: 15 },
-    { id: 3, type: "landmark", icon: "🏰", name: "Landmark Kota", azimuth: 240, elevation: -10 },
-  ];
+  const FOV_H = 38;
+  const FOV_V = 32;
 
-  // Device orientation for 360° view (alpha = compass 0–360, beta = tilt front/back)
   const [orientation, setOrientation] = useState(null);
-  const [orientationPermission, setOrientationPermission] = useState("pending"); // pending | granted | denied
+  const [orientationReady, setOrientationReady] = useState(false);
 
   const handleOrientationRef = useRef((e) => {
     const alpha = e.alpha != null ? e.alpha : 0;
@@ -89,32 +83,31 @@ export default function WebARHunter({ onComplete, onBack }) {
       typeof DeviceOrientationEvent.requestPermission === "function";
 
     if (!needsUserGesture) {
-      setOrientationPermission("granted");
+      setOrientationReady(true);
       window.addEventListener("deviceorientation", handleOrientationRef.current, true);
       return () => window.removeEventListener("deviceorientation", handleOrientationRef.current, true);
     }
   }, [status]);
 
-  const requestOrientationPermission = async () => {
-    if (typeof DeviceOrientationEvent === "undefined" || typeof DeviceOrientationEvent.requestPermission !== "function") return;
+  const requestOrientationOnTap = async () => {
+    if (orientationReady) return;
+    if (typeof DeviceOrientationEvent === "undefined" || typeof DeviceOrientationEvent.requestPermission !== "function") {
+      setOrientationReady(true);
+      return;
+    }
     try {
       const perm = await DeviceOrientationEvent.requestPermission();
-      setOrientationPermission(perm);
       if (perm === "granted") {
         window.addEventListener("deviceorientation", handleOrientationRef.current, true);
       }
-    } catch (err) {
-      setOrientationPermission("denied");
+      setOrientationReady(true);
+    } catch {
+      setOrientationReady(true);
     }
   };
 
-  // Fallback positions when orientation not yet available (spread so not stacked)
-  const fallbackPositions = { 1: { x: 25, y: 50 }, 2: { x: 50, y: 50 }, 3: { x: 75, y: 50 } };
   const getObjectView = (obj) => {
-    if (!orientation) {
-      const pos = fallbackPositions[obj.id] || { x: 50, y: 50 };
-      return { inView: true, x: pos.x, y: pos.y };
-    }
+    if (!orientation) return { inView: false, x: 50, y: 50 };
     const wrapAngle = (a) => ((a % 360) + 360) % 360;
     const diffH = wrapAngle(obj.azimuth - orientation.alpha);
     const deltaH = diffH > 180 ? diffH - 360 : diffH;
@@ -312,30 +305,34 @@ export default function WebARHunter({ onComplete, onBack }) {
               </motion.div>
             )}
 
-            {/* AR Scanner UI overlay */}
+            {/* Satu tap di area AR = mulai 360° (izin orientasi di iOS). Tanpa tombol terpisah. */}
+            {capturedCount < TARGET_COUNT && !orientationReady && (
+              <button
+                type="button"
+                onClick={requestOrientationOnTap}
+                className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm"
+              >
+                <p className="text-center text-base font-semibold text-white drop-shadow">
+                  Tap layar untuk mulai
+                </p>
+                <p className="mt-2 text-center text-sm text-white/90">
+                  Lalu putar perangkat 360° untuk mencari objek
+                </p>
+              </button>
+            )}
+
+            {/* AR Scanner UI overlay (pointer-events-none agar tap ke video/objek) */}
             {capturedCount < TARGET_COUNT && (
               <div className="pointer-events-none absolute inset-0">
-                {/* Corner brackets */}
                 <div className="absolute left-4 top-4 h-8 w-8 border-l-4 border-t-4 border-violet-400" />
                 <div className="absolute right-4 top-4 h-8 w-8 border-r-4 border-t-4 border-violet-400" />
                 <div className="absolute bottom-4 left-4 h-8 w-8 border-b-4 border-l-4 border-violet-400" />
                 <div className="absolute bottom-4 right-4 h-8 w-8 border-b-4 border-r-4 border-violet-400" />
-
-                {/* Instruction */}
-                <div className="absolute left-1/2 top-4 -translate-x-1/2 rounded-lg bg-black/70 px-4 py-2 backdrop-blur-sm">
-                  <p className="text-center text-sm font-semibold text-white">
-                    <Scan className="inline h-4 w-4" /> Putar perangkat 360° (kiri/kanan/atas/bawah) untuk mencari objek AR
-                  </p>
-                </div>
-                {orientationPermission === "pending" && (
-                  <div className="absolute bottom-20 left-1/2 -translate-x-1/2">
-                    <button
-                      type="button"
-                      onClick={requestOrientationPermission}
-                      className="rounded-xl bg-violet-500 px-4 py-3 text-sm font-bold text-white shadow-lg hover:bg-violet-600"
-                    >
-                      Izinkan akses orientasi untuk 360°
-                    </button>
+                {orientationReady && (
+                  <div className="absolute left-1/2 top-4 -translate-x-1/2 rounded-lg bg-black/70 px-4 py-2 backdrop-blur-sm">
+                    <p className="text-center text-sm font-semibold text-white">
+                      <Scan className="inline h-4 w-4" /> Putar perangkat 360° untuk mencari objek
+                    </p>
                   </div>
                 )}
               </div>

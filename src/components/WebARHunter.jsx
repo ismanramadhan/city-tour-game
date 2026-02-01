@@ -106,8 +106,13 @@ export default function WebARHunter({ onComplete, onBack }) {
     }
   };
 
+  // Saat orientasi belum ada: objek tersebar di layar (tidak hilang). Saat orientasi ada: hanya yang masuk FOV.
+  const fallbackSpread = { 1: { x: 20, y: 35 }, 2: { x: 50, y: 55 }, 3: { x: 80, y: 40 } };
   const getObjectView = (obj) => {
-    if (!orientation) return { inView: false, x: 50, y: 50 };
+    if (!orientation) {
+      const pos = fallbackSpread[obj.id] || { x: 50, y: 50 };
+      return { inView: true, x: pos.x, y: pos.y };
+    }
     const wrapAngle = (a) => ((a % 360) + 360) % 360;
     const diffH = wrapAngle(obj.azimuth - orientation.alpha);
     const deltaH = diffH > 180 ? diffH - 360 : diffH;

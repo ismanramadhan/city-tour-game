@@ -4,6 +4,13 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Camera, Loader2, Trophy, Scan, Target, Zap } from "lucide-react";
 
+const TARGET_COUNT = 3;
+const AR_OBJECT_ANGLES = [
+  { id: 1, type: "heritage", icon: "🏛️", name: "Monumen Bersejarah", azimuth: 0, elevation: 0 },
+  { id: 2, type: "artifact", icon: "🗿", name: "Artefak Kuno", azimuth: 120, elevation: 15 },
+  { id: 3, type: "landmark", icon: "🏰", name: "Landmark Kota", azimuth: 240, elevation: -10 },
+];
+
 export default function WebARHunter({ onComplete, onBack }) {
   const [status, setStatus] = useState("loading"); // loading | ready | error
   const [errorMessage, setErrorMessage] = useState("");
@@ -12,7 +19,7 @@ export default function WebARHunter({ onComplete, onBack }) {
   const [showCaptureEffect, setShowCaptureEffect] = useState(false);
   const videoRef = useRef(null);
   const streamRef = useRef(null);
-  const TARGET_COUNT = 3;
+  const hasSpawnedRef = useRef(false);
 
   // Initialize camera
   useEffect(() => {
@@ -29,9 +36,6 @@ export default function WebARHunter({ onComplete, onBack }) {
       .then((s) => {
         stream = s;
         streamRef.current = s;
-        if (videoRef.current) {
-          videoRef.current.srcObject = s;
-        }
         setStatus("ready");
       })
       .catch((err) => {
@@ -51,38 +55,81 @@ export default function WebARHunter({ onComplete, onBack }) {
     };
   }, []);
 
-  // Spawn AR objects randomly (simulated location-based objects)
+  // Set video srcObject when video element mounts (after status === "ready")
+  useEffect(() => {
+    if (status !== "ready" || !videoRef.current || !streamRef.current) return;
+    videoRef.current.srcObject = streamRef.current;
+    videoRef.current.play().catch(() => {});
+  }, [status]);
+
+  // AR objects at fixed spherical angles so user must rotate 360° to find them
+  const FOV_H = 55;
+  const FOV_V = 45;
+  const objectAngles = [
+    { id: 1, type: "heritage", icon: "🏛️", name: "Monumen Bersejarah", azimuth: 0, elevation: 0 },
+    { id: 2, type: "artifact", icon: "🗿", name: "Artefak Kuno", azimuth: 120, elevation: 15 },
+    { id: 3, type: "landmark", icon: "🏰", name: "Landmark Kota", azimuth: 240, elevation: -10 },
+  ];
+
+  // Device orientation for 360° view (alpha = compass 0–360, beta = tilt front/back)
+  const [orientation, setOrientation] = useState(null);
+  const [orientationPermission, setOrientationPermission] = useState("pending"); // pending | granted | denied
+
+  const handleOrientationRef = useRef((e) => {
+    const alpha = e.alpha != null ? e.alpha : 0;
+    const beta = e.beta != null ? e.beta : 0;
+    setOrientation((prev) => (prev?.alpha === alpha && prev?.beta === beta ? prev : { alpha, beta }));
+  });
+
   useEffect(() => {
     if (status !== "ready") return;
 
-    // Spawn 3 AR objects at random positions
-    const objects = [
-      {
-        id: 1,
-        type: "heritage",
-        icon: "🏛️",
-        name: "Monumen Bersejarah",
-        x: Math.random() * 60 + 20, // 20-80%
-        y: Math.random() * 60 + 20,
-      },
-      {
-        id: 2,
-        type: "artifact",
-        icon: "🗿",
-        name: "Artefak Kuno",
-        x: Math.random() * 60 + 20,
-        y: Math.random() * 60 + 20,
-      },
-      {
-        id: 3,
-        type: "landmark",
-        icon: "🏰",
-        name: "Landmark Kota",
-        x: Math.random() * 60 + 20,
-        y: Math.random() * 60 + 20,
-      },
-    ];
-    setArObjects(objects);
+    const needsUserGesture =
+      typeof DeviceOrientationEvent !== "undefined" &&
+      typeof DeviceOrientationEvent.requestPermission === "function";
+
+    if (!needsUserGesture) {
+      setOrientationPermission("granted");
+      window.addEventListener("deviceorientation", handleOrientationRef.current, true);
+      return () => window.removeEventListener("deviceorientation", handleOrientationRef.current, true);
+    }
+  }, [status]);
+
+  const requestOrientationPermission = async () => {
+    if (typeof DeviceOrientationEvent === "undefined" || typeof DeviceOrientationEvent.requestPermission !== "function") return;
+    try {
+      const perm = await DeviceOrientationEvent.requestPermission();
+      setOrientationPermission(perm);
+      if (perm === "granted") {
+        window.addEventListener("deviceorientation", handleOrientationRef.current, true);
+      }
+    } catch (err) {
+      setOrientationPermission("denied");
+    }
+  };
+
+  // Fallback positions when orientation not yet available (spread so not stacked)
+  const fallbackPositions = { 1: { x: 25, y: 50 }, 2: { x: 50, y: 50 }, 3: { x: 75, y: 50 } };
+  const getObjectView = (obj) => {
+    if (!orientation) {
+      const pos = fallbackPositions[obj.id] || { x: 50, y: 50 };
+      return { inView: true, x: pos.x, y: pos.y };
+    }
+    const wrapAngle = (a) => ((a % 360) + 360) % 360;
+    const diffH = wrapAngle(obj.azimuth - orientation.alpha);
+    const deltaH = diffH > 180 ? diffH - 360 : diffH;
+    const deltaV = obj.elevation - orientation.beta;
+    const inView = Math.abs(deltaH) < FOV_H / 2 && Math.abs(deltaV) < FOV_V / 2;
+    const x = 50 + (deltaH / (FOV_H / 2)) * 45;
+    const y = 50 + (deltaV / (FOV_V / 2)) * 40;
+    return { inView, x: Math.max(5, Math.min(95, x)), y: Math.max(10, Math.min(90, y)) };
+  };
+
+  // Spawn AR objects (with angles) once when ready
+  useEffect(() => {
+    if (status !== "ready" || hasSpawnedRef.current) return;
+    hasSpawnedRef.current = true;
+    setArObjects([...AR_OBJECT_ANGLES]);
   }, [status]);
 
   const handleCaptureObject = (objectId) => {
@@ -168,9 +215,12 @@ export default function WebARHunter({ onComplete, onBack }) {
               className="aspect-[3/4] w-full object-cover"
             />
 
-            {/* AR Objects - location-based */}
+            {/* AR Objects - only visible when in view (user must rotate 360° to find) */}
             <AnimatePresence>
-              {arObjects.map((obj) => (
+              {arObjects.map((obj) => {
+                const { inView, x, y } = getObjectView(obj);
+                if (!inView) return null;
+                return (
                 <motion.button
                   key={obj.id}
                   initial={{ scale: 0, opacity: 0 }}
@@ -181,8 +231,8 @@ export default function WebARHunter({ onComplete, onBack }) {
                   onClick={() => handleCaptureObject(obj.id)}
                   className="absolute flex flex-col items-center gap-1"
                   style={{
-                    left: `${obj.x}%`,
-                    top: `${obj.y}%`,
+                    left: `${x}%`,
+                    top: `${y}%`,
                     transform: "translate(-50%, -50%)",
                   }}
                 >
@@ -215,7 +265,8 @@ export default function WebARHunter({ onComplete, onBack }) {
                     <span className="text-xs font-bold text-white">TAP</span>
                   </motion.div>
                 </motion.button>
-              ))}
+                );
+              })}
             </AnimatePresence>
 
             {/* Capture effect */}
@@ -273,9 +324,20 @@ export default function WebARHunter({ onComplete, onBack }) {
                 {/* Instruction */}
                 <div className="absolute left-1/2 top-4 -translate-x-1/2 rounded-lg bg-black/70 px-4 py-2 backdrop-blur-sm">
                   <p className="text-center text-sm font-semibold text-white">
-                    <Scan className="inline h-4 w-4" /> Cari & tap objek AR
+                    <Scan className="inline h-4 w-4" /> Putar perangkat 360° (kiri/kanan/atas/bawah) untuk mencari objek AR
                   </p>
                 </div>
+                {orientationPermission === "pending" && (
+                  <div className="absolute bottom-20 left-1/2 -translate-x-1/2">
+                    <button
+                      type="button"
+                      onClick={requestOrientationPermission}
+                      className="rounded-xl bg-violet-500 px-4 py-3 text-sm font-bold text-white shadow-lg hover:bg-violet-600"
+                    >
+                      Izinkan akses orientasi untuk 360°
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>

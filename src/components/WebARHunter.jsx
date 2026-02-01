@@ -5,11 +5,25 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Camera, Loader2, Trophy, Scan, Target, Zap } from "lucide-react";
 
 const TARGET_COUNT = 3;
-const AR_OBJECT_ANGLES = [
-  { id: 1, type: "heritage", icon: "🏛️", name: "Monumen Bersejarah", azimuth: 0, elevation: 0 },
-  { id: 2, type: "artifact", icon: "🗿", name: "Artefak Kuno", azimuth: 120, elevation: 15 },
-  { id: 3, type: "landmark", icon: "🏰", name: "Landmark Kota", azimuth: 240, elevation: -10 },
+const OBJECT_TEMPLATES = [
+  { id: 1, type: "heritage", icon: "🏛️", name: "Monumen Bersejarah" },
+  { id: 2, type: "artifact", icon: "🗿", name: "Artefak Kuno" },
+  { id: 3, type: "landmark", icon: "🏰", name: "Landmark Kota" },
 ];
+
+// Seperti script GPS: offset acak di sekitar user → azimuth (derajat dari utara), elevation ≈ 0
+function placeObjectsAroundUser() {
+  const objects = [];
+  for (let i = 0; i < TARGET_COUNT; i++) {
+    const t = OBJECT_TEMPLATES[i];
+    const latOffset = (Math.random() - 0.5) * 0.0006;
+    const lonOffset = (Math.random() - 0.5) * 0.0006;
+    const azimuth = (Math.atan2(lonOffset, latOffset) * (180 / Math.PI) + 360) % 360;
+    const elevation = (Math.random() - 0.5) * 20;
+    objects.push({ ...t, azimuth, elevation });
+  }
+  return objects;
+}
 
 export default function WebARHunter({ onComplete, onBack }) {
   const [status, setStatus] = useState("loading"); // loading | ready | error
@@ -62,16 +76,15 @@ export default function WebARHunter({ onComplete, onBack }) {
     videoRef.current.play().catch(() => {});
   }, [status]);
 
-  // AR objects at fixed spherical angles so user must rotate 360° to find them
-  const FOV_H = 38;
-  const FOV_V = 32;
+  const FOV_H = 50;
+  const FOV_V = 45;
 
   const [orientation, setOrientation] = useState(null);
   const [orientationReady, setOrientationReady] = useState(false);
 
   const handleOrientationRef = useRef((e) => {
     const alpha = e.alpha != null ? e.alpha : 0;
-    const beta = e.beta != null ? e.beta : 0;
+    const beta = e.beta != null ? e.beta : 90;
     setOrientation((prev) => (prev?.alpha === alpha && prev?.beta === beta ? prev : { alpha, beta }));
   });
 
@@ -106,7 +119,8 @@ export default function WebARHunter({ onComplete, onBack }) {
     }
   };
 
-  // Saat orientasi belum ada: objek tersebar di layar (tidak hilang). Saat orientasi ada: hanya yang masuk FOV.
+  // Arah pandang: alpha = compass (0–360). viewPitch = 90 - beta agar "pegang normal" = horizon (0°).
+  // Di DeviceOrientation: beta ≈ 90 saat layar tegak (lihat horizon), beta ≈ 0 saat kamera ke bawah.
   const fallbackSpread = { 1: { x: 20, y: 35 }, 2: { x: 50, y: 55 }, 3: { x: 80, y: 40 } };
   const getObjectView = (obj) => {
     if (!orientation) {
@@ -114,20 +128,21 @@ export default function WebARHunter({ onComplete, onBack }) {
       return { inView: true, x: pos.x, y: pos.y };
     }
     const wrapAngle = (a) => ((a % 360) + 360) % 360;
-    const diffH = wrapAngle(obj.azimuth - orientation.alpha);
-    const deltaH = diffH > 180 ? diffH - 360 : diffH;
-    const deltaV = obj.elevation - orientation.beta;
-    const inView = Math.abs(deltaH) < FOV_H / 2 && Math.abs(deltaV) < FOV_V / 2;
-    const x = 50 + (deltaH / (FOV_H / 2)) * 45;
+    const deltaH = wrapAngle(obj.azimuth - orientation.alpha);
+    const deltaHNorm = deltaH > 180 ? deltaH - 360 : deltaH;
+    const viewPitch = 90 - orientation.beta;
+    const deltaV = obj.elevation - viewPitch;
+    const inView = Math.abs(deltaHNorm) < FOV_H / 2 && Math.abs(deltaV) < FOV_V / 2;
+    const x = 50 + (deltaHNorm / (FOV_H / 2)) * 45;
     const y = 50 + (deltaV / (FOV_V / 2)) * 40;
     return { inView, x: Math.max(5, Math.min(95, x)), y: Math.max(10, Math.min(90, y)) };
   };
 
-  // Spawn AR objects (with angles) once when ready
+  // Spawn objek seperti script GPS: posisi acak di sekitar user (azimuth + elevation dari offset)
   useEffect(() => {
     if (status !== "ready" || hasSpawnedRef.current) return;
     hasSpawnedRef.current = true;
-    setArObjects([...AR_OBJECT_ANGLES]);
+    setArObjects(placeObjectsAroundUser());
   }, [status]);
 
   const handleCaptureObject = (objectId) => {

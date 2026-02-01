@@ -49,7 +49,7 @@ export default function LoginPage() {
 
           <div>
             <h1 className="text-2xl font-black text-amber-800">
-              City Tour Game
+              HUNT J.
             </h1>
             <p className="mt-2 text-sm text-zinc-600">
               Jelajahi kota dengan tantangan seru!

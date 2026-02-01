@@ -64,7 +64,7 @@ export default function SagaMap({ unlockedLevels = [1], onLevelClick, levels = [
             className="mb-8 text-center"
           >
             <h1 className="text-2xl font-black text-amber-800 drop-shadow-sm">
-              Hunt J.
+              HUNT J.
             </h1>
             <p className="mt-1 text-sm text-amber-700/80">
               Jelajahi kota dan selesaikan tantangan!

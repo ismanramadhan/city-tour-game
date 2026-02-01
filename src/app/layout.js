@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "City Tour Game | Jelajahi Kota dengan Tantangan Seru",
-  description: "Prototype Web-Based City Tour Game - Login, Map Saga, Geolocation & Trivia",
+  title: "HUNT J. | Jelajahi Kota dengan Tantangan Seru",
+  description: "Prototype Web-Based City Tour Game",
 };
 
 export default function RootLayout({ children }) {

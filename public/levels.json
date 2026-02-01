@@ -1,0 +1,126 @@
+{
+  "levels": [
+    {
+      "id": 1,
+      "title": "Gedung Sate",
+      "status": "unlocked",
+      "coordinates": {
+        "lat": -6.9024,
+        "lng": 107.6188
+      },
+      "radius_meter": 500,
+      "ar_object": {
+        "badge_id": "badge_001",
+        "model_url": "/assets/models/badge_heritage.gltf"
+      },
+      "trivia": [
+        {
+          "question": "Pada tahun berapakah peletakan batu pertama Gedung Sate dilakukan?",
+          "options": ["1920", "1924", "1930", "1945"],
+          "correct_answer": "1920",
+          "fact": "Peletakan batu pertama dilakukan pada 27 Juli 1920."
+        },
+        {
+          "question": "Apa simbol yang ada di puncak menara Gedung Sate?",
+          "options": ["Bunga Mawar", "Tusuk Sate", "Menara Eiffel", "Padi Kapas"],
+          "correct_answer": "Tusuk Sate",
+          "fact": "Simbol tersebut sebenarnya adalah ornamen 6 buah jambu air yang melambangkan biaya pembangunan 6 juta gulden."
+        },
+        {
+          "question": "Siapakah arsitek utama dibalik pembangunan Gedung Sate?",
+          "options": ["Ridwan Kamil", "J.G. Gerber", "Thomas Karsten", "C.P. Wolff Schoemaker"],
+          "correct_answer": "J.G. Gerber",
+          "fact": "J.G. Gerber memimpin tim arsitek dari Belanda untuk proyek ini."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Jalan Braga",
+      "status": "locked",
+      "coordinates": {
+        "lat": -6.9175,
+        "lng": 107.6097
+      },
+      "radius_meter": 300,
+      "ar_object": {
+        "badge_id": "badge_002",
+        "model_url": "/assets/models/vintage_car.gltf"
+      },
+      "trivia": [
+        {
+          "question": "Dahulu Jalan Braga dikenal dengan nama?",
+          "options": ["Karrenweg", "Heerenstraat", "Postweg", "Main Street"],
+          "correct_answer": "Karrenweg",
+          "fact": "Dulu merupakan jalan pedati yang disebut Karrenweg."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Level 3",
+      "status": "locked",
+      "coordinates": {
+        "lat": -6.91,
+        "lng": 107.62
+      },
+      "radius_meter": 400,
+      "ar_object": {
+        "badge_id": "badge_003",
+        "model_url": "/assets/models/badge_heritage.gltf"
+      },
+      "trivia": [
+        {
+          "question": "Pertanyaan Level 3?",
+          "options": ["A", "B", "C", "D"],
+          "correct_answer": "A",
+          "fact": "Fakta untuk Level 3."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Level 4",
+      "status": "locked",
+      "coordinates": {
+        "lat": -6.905,
+        "lng": 107.615
+      },
+      "radius_meter": 400,
+      "ar_object": {
+        "badge_id": "badge_004",
+        "model_url": "/assets/models/badge_heritage.gltf"
+      },
+      "trivia": [
+        {
+          "question": "Pertanyaan Level 4?",
+          "options": ["A", "B", "C", "D"],
+          "correct_answer": "A",
+          "fact": "Fakta untuk Level 4."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Level 5",
+      "status": "locked",
+      "coordinates": {
+        "lat": -6.908,
+        "lng": 107.612
+      },
+      "radius_meter": 400,
+      "ar_object": {
+        "badge_id": "badge_005",
+        "model_url": "/assets/models/badge_heritage.gltf"
+      },
+      "trivia": [
+        {
+          "question": "Pertanyaan Level 5?",
+          "options": ["A", "B", "C", "D"],
+          "correct_answer": "A",
+          "fact": "Fakta untuk Level 5."
+        }
+      ]
+    }
+  ]
+}

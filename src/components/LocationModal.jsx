@@ -6,7 +6,9 @@ import { X, MapPin, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { isWithinRadius } from "@/lib/geolocation";
 import { TARGET_COORDS, LOCATION_RADIUS_M } from "@/lib/constants";
 
-export default function LocationModal({ isOpen, onClose, onVerified, levelId }) {
+export default function LocationModal({ isOpen, onClose, onVerified, levelId, targetCoords, radiusM }) {
+  const coords = targetCoords ?? TARGET_COORDS;
+  const radius = radiusM ?? LOCATION_RADIUS_M;
   const [status, setStatus] = useState("idle"); // idle | loading | success | error
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -27,9 +29,9 @@ export default function LocationModal({ isOpen, onClose, onVerified, levelId }) 
         const within = isWithinRadius(
           userLat,
           userLng,
-          TARGET_COORDS.lat,
-          TARGET_COORDS.lng,
-          LOCATION_RADIUS_M
+          coords.lat,
+          coords.lng,
+          radius
         );
 
         if (within) {
@@ -40,8 +42,8 @@ export default function LocationModal({ isOpen, onClose, onVerified, levelId }) 
           }, 1200);
         } else {
           setStatus("error");
-          const radiusKm = (LOCATION_RADIUS_M / 1000).toFixed(LOCATION_RADIUS_M >= 1000 ? 0 : 2);
-          const radiusLabel = LOCATION_RADIUS_M >= 1000 ? `${radiusKm} km` : `${LOCATION_RADIUS_M} m`;
+          const radiusKm = (radius / 1000).toFixed(radius >= 1000 ? 0 : 2);
+          const radiusLabel = radius >= 1000 ? `${radiusKm} km` : `${radius} m`;
           setErrorMessage(
             `Anda berada di luar radius yang diizinkan (${radiusLabel} dari lokasi target). Silakan mendekat ke lokasi target.`
           );
@@ -133,9 +135,9 @@ export default function LocationModal({ isOpen, onClose, onVerified, levelId }) 
               <p className="mt-1 text-sm text-zinc-500">
                 {status === "idle" &&
                   ("Aktifkan GPS untuk memverifikasi lokasi Anda. Prototype: radius " +
-                    (LOCATION_RADIUS_M >= 1000
-                      ? `${(LOCATION_RADIUS_M / 1000).toFixed(0)} km`
-                      : `${LOCATION_RADIUS_M} m`) +
+                    (radius >= 1000
+                      ? `${(radius / 1000).toFixed(0)} km`
+                      : `${radius} m`) +
                     " dari lokasi target.")}
                 {status === "loading" && "Mendeteksi posisi Anda..."}
                 {status === "success" && "Lokasi terverifikasi! Memuat tantangan..."}

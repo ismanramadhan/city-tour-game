@@ -2,8 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { LogOut, Loader2, MapPin } from "lucide-react";
-import Link from "next/link";
+import { LogOut, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import SagaMap from "@/components/SagaMap";
 
@@ -12,6 +11,7 @@ function MapContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [unlockedLevels, setUnlockedLevels] = useState([1]);
+  const [levels, setLevels] = useState([]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -23,6 +23,13 @@ function MapContent() {
         } catch (_) {}
       }
     }
+  }, []);
+
+  useEffect(() => {
+    fetch("/levels.json")
+      .then((res) => (res.ok ? res.json() : { levels: [] }))
+      .then((data) => setLevels(data.levels ?? []))
+      .catch(() => setLevels([]));
   }, []);
 
   // Handle level completion from query param
@@ -70,13 +77,6 @@ function MapContent() {
   return (
     <div className="relative">
       <div className="absolute right-4 top-4 z-20 flex items-center gap-2">
-        <Link
-          href="/hunts"
-          className="flex items-center gap-2 rounded-lg bg-white/90 px-3 py-2 text-sm font-medium text-zinc-700 shadow hover:bg-white"
-        >
-          <MapPin className="h-4 w-4" />
-          Hunts
-        </Link>
         <button
           onClick={handleSignOut}
           className="flex items-center gap-2 rounded-lg bg-white/90 px-3 py-2 text-sm font-medium text-zinc-700 shadow hover:bg-white"
@@ -88,6 +88,7 @@ function MapContent() {
       <SagaMap
         unlockedLevels={unlockedLevels}
         onLevelClick={handleLevelClick}
+        levels={levels}
       />
     </div>
   );

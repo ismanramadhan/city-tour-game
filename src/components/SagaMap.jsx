@@ -7,10 +7,11 @@ import { TOTAL_LEVELS } from "@/lib/constants";
 import LocationModal from "./LocationModal";
 import { playClickSound, playLockedSound } from "@/lib/audio";
 
-export default function SagaMap({ unlockedLevels = [1], onLevelClick }) {
+export default function SagaMap({ unlockedLevels = [1], onLevelClick, levels = [] }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedLevel, setSelectedLevel] = useState(null);
   const containerRef = useRef(null);
+  const selectedLevelData = levels.find((l) => l.id === selectedLevel);
 
   // Parallax scroll effect
   const { scrollYProgress } = useScroll({
@@ -63,7 +64,7 @@ export default function SagaMap({ unlockedLevels = [1], onLevelClick }) {
             className="mb-8 text-center"
           >
             <h1 className="text-2xl font-black text-amber-800 drop-shadow-sm">
-              City Tour Saga
+              Hunt J.
             </h1>
             <p className="mt-1 text-sm text-amber-700/80">
               Jelajahi kota dan selesaikan tantangan!
@@ -155,6 +156,8 @@ export default function SagaMap({ unlockedLevels = [1], onLevelClick }) {
         }}
         onVerified={handleVerified}
         levelId={selectedLevel}
+        targetCoords={selectedLevelData?.coordinates}
+        radiusM={selectedLevelData?.radius_meter}
       />
     </>
   );

@@ -1,55 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, XCircle, ChevronRight } from "lucide-react";
+import { CheckCircle2, XCircle, ChevronRight, Lightbulb } from "lucide-react";
 
-// Mock trivia questions about Jakarta heritage
-const TRIVIA_QUESTIONS = [
-  {
-    id: 1,
-    question:
-      "Monumen Nasional (Monas) dibangun pada masa pemerintahan presiden siapa?",
-    options: ["Soekarno", "Soeharto", "B.J. Habibie", "Megawati"],
-    correct: 0,
-  },
-  {
-    id: 2,
-    question: "Tinggi tugu Monas adalah...",
-    options: ["132 meter", "137 meter", "142 meter", "147 meter"],
-    correct: 1,
-  },
-  {
-    id: 3,
-    question: "Api abadi di puncak Monas melambangkan...",
-    options: [
-      "Semangat perjuangan bangsa",
-      "Kemerdekaan Indonesia",
-      "Lidah api perjuangan",
-      "Semua jawaban benar",
-    ],
-    correct: 3,
-  },
-];
+// Normalisasi item trivia: correct_answer (string) → correct (index)
+function normalizeTrivia(trivia) {
+  if (!Array.isArray(trivia)) return [];
+  return trivia.map((item) => {
+    const options = item.options ?? [];
+    const idx = options.findIndex((o) => String(o).trim() === String(item.correct_answer).trim());
+    const correct = idx >= 0 ? idx : 0;
+    return { ...item, options, correct, fact: item.fact ?? "" };
+  });
+}
 
-export default function Trivia({ onComplete, onBack }) {
+export default function Trivia({ trivia = [], onComplete, onBack }) {
+  const questions = useMemo(() => normalizeTrivia(trivia), [trivia]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [score, setScore] = useState(0);
   const [showResult, setShowResult] = useState(false);
 
-  const question = TRIVIA_QUESTIONS[currentIndex];
-  const isLastQuestion = currentIndex === TRIVIA_QUESTIONS.length - 1;
+  const question = questions[currentIndex];
+  const isLastQuestion = questions.length > 0 && currentIndex === questions.length - 1;
 
   const handleSelectAnswer = (index) => {
-    if (selectedAnswer !== null) return;
-
+    if (selectedAnswer !== null || !question) return;
     setSelectedAnswer(index);
     setShowResult(true);
-
-    if (index === question.correct) {
-      setScore((s) => s + 1);
-    }
+    if (index === question.correct) setScore((s) => s + 1);
   };
 
   const handleNext = () => {
@@ -62,9 +42,29 @@ export default function Trivia({ onComplete, onBack }) {
     }
   };
 
+  if (questions.length === 0) {
+    return (
+      <div className="flex min-h-screen flex-col bg-gradient-to-b from-amber-50 to-orange-50 p-4">
+        <div className="mb-6 flex items-center justify-between">
+          <button
+            onClick={onBack}
+            className="rounded-lg bg-white/80 px-4 py-2 text-sm font-medium text-zinc-700 shadow hover:bg-white"
+          >
+            Kembali
+          </button>
+        </div>
+        <div className="rounded-xl border-2 border-amber-200 bg-amber-50 p-6 text-center">
+          <p className="font-medium text-amber-800">Tidak ada pertanyaan untuk level ini.</p>
+          <p className="mt-2 text-sm text-zinc-600">
+            Edit <code className="rounded bg-amber-100 px-1">public/levels.json</code> dan isi <code className="rounded bg-amber-100 px-1">trivia</code> untuk level yang dipilih.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-amber-50 to-orange-50 p-4">
-      {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <button
           onClick={onBack}
@@ -73,23 +73,21 @@ export default function Trivia({ onComplete, onBack }) {
           Kembali
         </button>
         <div className="rounded-full bg-amber-100 px-4 py-2 text-sm font-bold text-amber-800">
-          {currentIndex + 1} / {TRIVIA_QUESTIONS.length}
+          {currentIndex + 1} / {questions.length}
         </div>
       </div>
 
-      {/* Progress bar */}
       <div className="mb-8 h-2 overflow-hidden rounded-full bg-amber-200">
         <motion.div
           className="h-full rounded-full bg-amber-500"
           initial={{ width: 0 }}
           animate={{
-            width: `${((currentIndex + 1) / TRIVIA_QUESTIONS.length) * 100}%`,
+            width: `${((currentIndex + 1) / questions.length) * 100}%`,
           }}
           transition={{ duration: 0.3 }}
         />
       </div>
 
-      {/* Question */}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentIndex}
@@ -133,10 +131,22 @@ export default function Trivia({ onComplete, onBack }) {
               );
             })}
           </div>
+
+          {showResult && question.fact && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-4 flex gap-2 rounded-xl border border-amber-200 bg-amber-50/80 p-4"
+            >
+              <Lightbulb className="h-5 w-5 shrink-0 text-amber-600" />
+              <p className="text-sm text-amber-900">
+                <span className="font-semibold">Fakta:</span> {question.fact}
+              </p>
+            </motion.div>
+          )}
         </motion.div>
       </AnimatePresence>
 
-      {/* Next button */}
       {showResult && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -150,7 +160,7 @@ export default function Trivia({ onComplete, onBack }) {
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 py-4 font-semibold text-white shadow-lg hover:bg-amber-600"
           >
             {isLastQuestion ? (
-              <>Lihat Skor ({score}/{TRIVIA_QUESTIONS.length})</>
+              <>Lihat Skor ({score}/{questions.length})</>
             ) : (
               <>
                 Lanjut
@@ -161,11 +171,10 @@ export default function Trivia({ onComplete, onBack }) {
         </motion.div>
       )}
 
-      {/* Final score modal - shown when completing */}
       {isLastQuestion && showResult && (
         <div className="mt-4 rounded-xl bg-white/90 p-4 text-center shadow">
           <p className="text-lg font-bold text-zinc-800">
-            Skor: {score} / {TRIVIA_QUESTIONS.length}
+            Skor: {score} / {questions.length}
           </p>
           <p className="mt-1 text-sm text-zinc-600">
             Klik &quot;Lihat Skor&quot; untuk menyelesaikan tantangan.

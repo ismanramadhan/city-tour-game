@@ -1,9 +1,9 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Gamepad2, MapPin, BookOpen, ArrowLeft, Scan } from "lucide-react";
+import { Gamepad2, MapPin, BookOpen, ArrowLeft, Scan, Loader2 } from "lucide-react";
 import LocationBasedChallenge from "@/components/LocationBasedChallenge";
 import WebARHunter from "@/components/WebARHunter";
 import Trivia from "@/components/Trivia";
@@ -12,7 +12,20 @@ export default function LevelPage() {
   const params = useParams();
   const router = useRouter();
   const levelId = parseInt(params?.id || "1", 10);
-  const [view, setView] = useState("challenge-select"); // challenge-select | location | ar | trivia
+  const [view, setView] = useState("challenge-select");
+  const [levelData, setLevelData] = useState(null);
+  const [levelsLoading, setLevelsLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/levels.json")
+      .then((res) => res.ok ? res.json() : { levels: [] })
+      .then((data) => {
+        const level = (data.levels ?? []).find((l) => l.id === levelId);
+        setLevelData(level ?? null);
+      })
+      .catch(() => setLevelData(null))
+      .finally(() => setLevelsLoading(false));
+  }, [levelId]);
 
   const handleBackToMap = () => {
     router.push("/map");
@@ -23,9 +36,18 @@ export default function LevelPage() {
     router.push("/map?completed=" + levelId);
   };
 
+  if (levelsLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-sky-50 to-amber-50">
+        <Loader2 className="h-10 w-10 animate-spin text-amber-600" />
+      </div>
+    );
+  }
+
+  const levelTitle = levelData?.title ?? `Level ${levelId}`;
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-50 to-amber-50">
-      {/* Header */}
       <div className="flex items-center justify-between p-4">
         <button
           onClick={
@@ -39,7 +61,7 @@ export default function LevelPage() {
           Kembali
         </button>
         <span className="rounded-full bg-amber-100 px-4 py-2 text-sm font-bold text-amber-800">
-          Level {levelId}
+          {levelTitle}
         </span>
       </div>
 
@@ -155,6 +177,7 @@ export default function LevelPage() {
             exit={{ opacity: 0 }}
           >
             <Trivia
+              trivia={levelData?.trivia ?? []}
               onComplete={(score) => {
                 handleChallengeComplete(score);
               }}

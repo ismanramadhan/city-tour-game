@@ -40,8 +40,10 @@ export default function LocationModal({ isOpen, onClose, onVerified, levelId }) 
           }, 1200);
         } else {
           setStatus("error");
+          const radiusKm = (LOCATION_RADIUS_M / 1000).toFixed(LOCATION_RADIUS_M >= 1000 ? 0 : 2);
+          const radiusLabel = LOCATION_RADIUS_M >= 1000 ? `${radiusKm} km` : `${LOCATION_RADIUS_M} m`;
           setErrorMessage(
-            "Anda berada di luar radius yang diizinkan (500m dari lokasi target). Silakan mendekat ke Monas, Jakarta."
+            `Anda berada di luar radius yang diizinkan (${radiusLabel} dari lokasi target). Silakan mendekat ke lokasi target.`
           );
         }
       },
@@ -130,7 +132,11 @@ export default function LocationModal({ isOpen, onClose, onVerified, levelId }) 
               </h3>
               <p className="mt-1 text-sm text-zinc-500">
                 {status === "idle" &&
-                  "Aktifkan GPS untuk memverifikasi bahwa Anda berada di lokasi target (radius 500m dari Monas)."}
+                  ("Aktifkan GPS untuk memverifikasi lokasi Anda. Prototype: radius " +
+                    (LOCATION_RADIUS_M >= 1000
+                      ? `${(LOCATION_RADIUS_M / 1000).toFixed(0)} km`
+                      : `${LOCATION_RADIUS_M} m`) +
+                    " dari lokasi target.")}
                 {status === "loading" && "Mendeteksi posisi Anda..."}
                 {status === "success" && "Lokasi terverifikasi! Memuat tantangan..."}
                 {status === "error" && errorMessage}

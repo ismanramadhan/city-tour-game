@@ -2,123 +2,123 @@
   "levels": [
     {
       "id": 1,
-      "title": "Gedung Sate",
+      "title": "Monumen Nasional (Monas)",
       "status": "unlocked",
       "coordinates": {
-        "lat": -6.9024,
-        "lng": 107.6188
+        "lat": -6.175392,
+        "lng": 106.827153
       },
-      "radius_meter": 500,
+      "radius_meter": 50000,
       "ar_object": {
-        "badge_id": "badge_001",
-        "model_url": "/assets/models/badge_heritage.gltf"
+        "badge_id": "badge_jakarta_001",
+        "model_url": "/assets/models/monas_gold.gltf"
       },
       "trivia": [
         {
-          "question": "Pada tahun berapakah peletakan batu pertama Gedung Sate dilakukan?",
-          "options": ["1920", "1924", "1930", "1945"],
-          "correct_answer": "1920",
-          "fact": "Peletakan batu pertama dilakukan pada 27 Juli 1920."
+          "question": "Berapakah berat lapisan emas murni pada lidah api di puncak Monas saat ini?",
+          "options": ["32 kg", "50 kg", "75 kg", "100 kg"],
+          "correct_answer": "50 kg",
+          "fact": "Awalnya hanya 32 kg, namun pada tahun 1995 ditambah menjadi 50 kg untuk menyambut HUT RI ke-50."
         },
         {
-          "question": "Apa simbol yang ada di puncak menara Gedung Sate?",
-          "options": ["Bunga Mawar", "Tusuk Sate", "Menara Eiffel", "Padi Kapas"],
-          "correct_answer": "Tusuk Sate",
-          "fact": "Simbol tersebut sebenarnya adalah ornamen 6 buah jambu air yang melambangkan biaya pembangunan 6 juta gulden."
-        },
-        {
-          "question": "Siapakah arsitek utama dibalik pembangunan Gedung Sate?",
-          "options": ["Ridwan Kamil", "J.G. Gerber", "Thomas Karsten", "C.P. Wolff Schoemaker"],
-          "correct_answer": "J.G. Gerber",
-          "fact": "J.G. Gerber memimpin tim arsitek dari Belanda untuk proyek ini."
+          "question": "Bentuk dasar Monas melambangkan alat rumah tangga tradisional Indonesia, yaitu?",
+          "options": ["Cobek & Ulekan", "Lumpang & Alu", "Lingga & Yoni", "Wajan & Sudip"],
+          "correct_answer": "Lingga & Yoni",
+          "fact": "Monas dirancang berdasarkan konsep Lingga (tugu) dan Yoni (cawan) yang melambangkan kesuburan dan harmoni."
         }
       ]
     },
     {
       "id": 2,
-      "title": "Jalan Braga",
+      "title": "Museum Fatahillah",
       "status": "locked",
       "coordinates": {
-        "lat": -6.9175,
-        "lng": 107.6097
+        "lat": -6.1352,
+        "lng": 106.8133
       },
-      "radius_meter": 300,
+      "radius_meter": 50000,
       "ar_object": {
-        "badge_id": "badge_002",
-        "model_url": "/assets/models/vintage_car.gltf"
+        "badge_id": "badge_jakarta_002",
+        "model_url": "/assets/models/stadhuis.gltf"
       },
       "trivia": [
         {
-          "question": "Dahulu Jalan Braga dikenal dengan nama?",
-          "options": ["Karrenweg", "Heerenstraat", "Postweg", "Main Street"],
-          "correct_answer": "Karrenweg",
-          "fact": "Dulu merupakan jalan pedati yang disebut Karrenweg."
+          "question": "Sebelum menjadi museum, gedung ini merupakan Balai Kota Batavia yang dikenal dengan nama?",
+          "options": ["Binnenhof", "Stadhuis", "Gouverneurskantoor", "Raad van Indie"],
+          "correct_answer": "Stadhuis",
+          "fact": "Gedung ini selesai dibangun pada 1710 dan berfungsi sebagai pusat pemerintahan VOC di Batavia."
+        },
+        {
+          "question": "Apa nama meriam besar yang berada di halaman belakang Museum Fatahillah?",
+          "options": ["Si Jagur", "Puntung", "Ki Amuk", "Si Cempaka"],
+          "correct_answer": "Si Jagur",
+          "fact": "Meriam Si Jagur memiliki simbol jempol kejepit (fico) yang dipercaya melambangkan kesuburan."
         }
       ]
     },
     {
       "id": 3,
-      "title": "Level 3",
+      "title": "Pelabuhan Sunda Kelapa",
       "status": "locked",
       "coordinates": {
-        "lat": -6.91,
-        "lng": 107.62
+        "lat": -6.1238,
+        "lng": 106.8085
       },
-      "radius_meter": 400,
+      "radius_meter": 50000,
       "ar_object": {
-        "badge_id": "badge_003",
-        "model_url": "/assets/models/badge_heritage.gltf"
+        "badge_id": "badge_jakarta_003",
+        "model_url": "/assets/models/pinisi_ship.gltf"
       },
       "trivia": [
         {
-          "question": "Pertanyaan Level 3?",
-          "options": ["A", "B", "C", "D"],
-          "correct_answer": "A",
-          "fact": "Fakta untuk Level 3."
+          "question": "Kapal kayu tradisional yang bersandar di Sunda Kelapa berasal dari suku?",
+          "options": ["Dayak", "Bugis-Makassar", "Jawa", "Melayu"],
+          "correct_answer": "Bugis-Makassar",
+          "fact": "Kapal Pinisi yang legendaris ini merupakan mahakarya pelaut suku Bugis dan Makassar."
         }
       ]
     },
     {
       "id": 4,
-      "title": "Level 4",
+      "title": "Gedung Kesenian Jakarta",
       "status": "locked",
       "coordinates": {
-        "lat": -6.905,
-        "lng": 107.615
+        "lat": -6.1667,
+        "lng": 106.8333
       },
-      "radius_meter": 400,
+      "radius_meter": 50000,
       "ar_object": {
-        "badge_id": "badge_004",
-        "model_url": "/assets/models/badge_heritage.gltf"
+        "badge_id": "badge_jakarta_004",
+        "model_url": "/assets/models/theatre_mask.gltf"
       },
       "trivia": [
         {
-          "question": "Pertanyaan Level 4?",
-          "options": ["A", "B", "C", "D"],
-          "correct_answer": "A",
-          "fact": "Fakta untuk Level 4."
+          "question": "Gedung Kesenian Jakarta dibangun pada masa pemerintahan Gubernur Jenderal siapa?",
+          "options": ["Daendels", "Raffles", "Van den Bosch", "Pieter Both"],
+          "correct_answer": "Raffles",
+          "fact": "Thomas Stamford Raffles memprakarsai pembangunan gedung teater ini pada tahun 1814."
         }
       ]
     },
     {
       "id": 5,
-      "title": "Level 5",
+      "title": "Gereja Katedral Jakarta",
       "status": "locked",
       "coordinates": {
-        "lat": -6.908,
-        "lng": 107.612
+        "lat": -6.1692,
+        "lng": 106.8331
       },
-      "radius_meter": 400,
+      "radius_meter": 50000,
       "ar_object": {
-        "badge_id": "badge_005",
-        "model_url": "/assets/models/badge_heritage.gltf"
+        "badge_id": "badge_jakarta_005",
+        "model_url": "/assets/models/cathedral_spire.gltf"
       },
       "trivia": [
         {
-          "question": "Pertanyaan Level 5?",
-          "options": ["A", "B", "C", "D"],
-          "correct_answer": "A",
-          "fact": "Fakta untuk Level 5."
+          "question": "Arsitektur Gereja Katedral Jakarta menggunakan gaya bangunan apa?",
+          "options": ["Barok", "Modern", "Neo-Gotik", "Renaissance"],
+          "correct_answer": "Neo-Gotik",
+          "fact": "Katedral ini memiliki ciri khas jendela mawar (rose window) dan menara besi yang mencirikan gaya Neo-Gotik Eropa."
         }
       ]
     }

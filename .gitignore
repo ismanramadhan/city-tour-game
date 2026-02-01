@@ -28,6 +28,8 @@ yarn-error.log*
 # local env files
 .env*.local
 .env
+/public/levels-JKT.json
+/public/levels-BDG.json
 
 # vercel
 .vercel

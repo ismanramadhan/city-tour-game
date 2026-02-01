@@ -3,15 +3,16 @@
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Gamepad2, MapPin, BookOpen, ArrowLeft } from "lucide-react";
+import { Gamepad2, MapPin, BookOpen, ArrowLeft, Scan } from "lucide-react";
 import LocationBasedChallenge from "@/components/LocationBasedChallenge";
+import WebARHunter from "@/components/WebARHunter";
 import Trivia from "@/components/Trivia";
 
 export default function LevelPage() {
   const params = useParams();
   const router = useRouter();
   const levelId = parseInt(params?.id || "1", 10);
-  const [view, setView] = useState("challenge-select"); // challenge-select | location | trivia
+  const [view, setView] = useState("challenge-select"); // challenge-select | location | ar | trivia
 
   const handleBackToMap = () => {
     router.push("/map");
@@ -82,6 +83,24 @@ export default function LevelPage() {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
+                onClick={() => setView("ar")}
+                className="flex w-full items-center gap-4 rounded-2xl border-2 border-violet-200 bg-white p-6 text-left shadow-md transition-all hover:border-violet-400 hover:bg-violet-50"
+              >
+                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-violet-100">
+                  <Scan className="h-7 w-7 text-violet-600" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-zinc-800">Web AR Hunter</h3>
+                  <p className="text-sm text-zinc-600">
+                    Demo Augmented Reality di browser (kamera + overlay)
+                  </p>
+                </div>
+                <Gamepad2 className="ml-auto h-5 w-5 text-zinc-400" />
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => setView("trivia")}
                 className="flex w-full items-center gap-4 rounded-2xl border-2 border-emerald-200 bg-white p-6 text-left shadow-md transition-all hover:border-emerald-400 hover:bg-emerald-50"
               >
@@ -108,6 +127,20 @@ export default function LevelPage() {
             exit={{ opacity: 0 }}
           >
             <LocationBasedChallenge
+              onComplete={handleChallengeComplete}
+              onBack={() => setView("challenge-select")}
+            />
+          </motion.div>
+        )}
+
+        {view === "ar" && (
+          <motion.div
+            key="ar"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <WebARHunter
               onComplete={handleChallengeComplete}
               onBack={() => setView("challenge-select")}
             />

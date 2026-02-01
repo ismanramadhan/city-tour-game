@@ -59,7 +59,7 @@ export default function LevelPage() {
               Lokasi terverifikasi! Pilih tantangan untuk menyelesaikan level.
             </p>
 
-            <div className="space-y-4">
+            <div className="space-y-4 pb-8">
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}

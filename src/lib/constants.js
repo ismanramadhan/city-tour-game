@@ -1,7 +1,7 @@
 // Target coordinates for geolocation verification (Monas, Jakarta)
 export const TARGET_COORDS = {
-  lat: -6.1754,
-  lng: 106.8272,
+  lat: -6.92177964567858,
+  lng: 107.60706447502031,
 };
 
 // Radius in meters - untuk prototype gunakan nilai besar agar tidak terikat lokasi
